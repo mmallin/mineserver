@@ -1,5 +1,6 @@
 # admins
 [Server]
+MikeM64
 
 # ops
 

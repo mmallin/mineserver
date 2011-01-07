@@ -809,6 +809,30 @@ int PacketHandler::player_block_placement(User *user)
     inv = Function::invoker_type(user, newblock, x, y, z, direction);
     Mineserver::get()->plugin()->runBlockCallback(newblock, "onPlace", inv);
 
+		switch(direction)
+		{
+			case BLOCK_BOTTOM:
+				y--;
+				break;
+			case BLOCK_TOP:
+				y++;
+				break;
+			case BLOCK_SOUTH:
+				x--;
+				break;
+			case BLOCK_NORTH:
+				x++;
+				break;
+			case BLOCK_WEST:
+				z--;
+				break;
+			case BLOCK_EAST:
+				z++;
+				break;
+			default:
+				break;
+		}
+		
     (static_cast<Hook5<void,User*,sint32,sint8,sint32,uint8>*>(Mineserver::get()->plugin()->getHook("BlockPlacePost")))->doAll(user, x, y, z, newblock);
 
     /* notify neighbour blocks of the placed block */
@@ -817,44 +841,52 @@ int PacketHandler::player_block_placement(User *user)
       inv = Function::invoker_type(user, newblock, x+1, y, z, BLOCK_SOUTH);
       Mineserver::get()->plugin()->runBlockCallback(block, "onNeighbourPlace", inv);
       (static_cast<Hook4<void,User*,sint32,sint8,sint32>*>(Mineserver::get()->plugin()->getHook("BlockNeighbourPlace")))->doAll(user, x+1, y, z);
-    }
+			Mineserver::get()->screen()->log("x+1 : " + dtos(block));
+		}
 
     if (Mineserver::get()->map()->getBlock(x-1, y, z, &block, &meta) && block != BLOCK_AIR)
     {
       inv = Function::invoker_type(user, newblock, x-1, y, z, BLOCK_NORTH);
       Mineserver::get()->plugin()->runBlockCallback(block, "onNeighbourPlace", inv);
       (static_cast<Hook4<void,User*,sint32,sint8,sint32>*>(Mineserver::get()->plugin()->getHook("BlockNeighbourPlace")))->doAll(user, x-1, y, z);
-    }
+			Mineserver::get()->screen()->log("x-1 : " + dtos(block));
+		}
 
     if (Mineserver::get()->map()->getBlock(x, y+1, z, &block, &meta) && block != BLOCK_AIR)
     {
       inv = Function::invoker_type(user, newblock, x, y+1, z, BLOCK_TOP);
       Mineserver::get()->plugin()->runBlockCallback(block, "onNeighbourPlace", inv);
       (static_cast<Hook4<void,User*,sint32,sint8,sint32>*>(Mineserver::get()->plugin()->getHook("BlockNeighbourPlace")))->doAll(user, x, y+1, z);
-    }
+			Mineserver::get()->screen()->log("y+1 : " + dtos(block));
+		}
 
     if (Mineserver::get()->map()->getBlock(x, y-1, z, &block, &meta) && block != BLOCK_AIR)
     {
       inv = Function::invoker_type(user, newblock, x, y-1, z, BLOCK_BOTTOM);
       Mineserver::get()->plugin()->runBlockCallback(block, "onNeighbourPlace", inv);
       (static_cast<Hook4<void,User*,sint32,sint8,sint32>*>(Mineserver::get()->plugin()->getHook("BlockNeighbourPlace")))->doAll(user, x, y-1, z);
-    }
+			Mineserver::get()->screen()->log("y-1 : " + dtos(block));
+		}
 
     if (Mineserver::get()->map()->getBlock(x, y, z+1, &block, &meta) && block != BLOCK_AIR)
     {
       inv = Function::invoker_type(user, newblock, x, y, z+1, BLOCK_WEST);
       Mineserver::get()->plugin()->runBlockCallback(block, "onNeighbourPlace", inv);
       (static_cast<Hook4<void,User*,sint32,sint8,sint32>*>(Mineserver::get()->plugin()->getHook("BlockNeighbourPlace")))->doAll(user, x, y, z+1);
-    }
+			Mineserver::get()->screen()->log("z+1 : " + dtos(block));
+		}
 
     if (Mineserver::get()->map()->getBlock(x, y, z-1, &block, &meta) && block != BLOCK_AIR)
     {
       inv = Function::invoker_type(user, newblock, x, y, z-1, BLOCK_EAST);
       Mineserver::get()->plugin()->runBlockCallback(block, "onNeighbourPlace", inv);
       (static_cast<Hook4<void,User*,sint32,sint8,sint32>*>(Mineserver::get()->plugin()->getHook("BlockNeighbourPlace")))->doAll(user, x, y, z-1);
-    }
+			Mineserver::get()->screen()->log("z-1 : " + dtos(block));
+		}
   }
-
+	Mineserver::get()->map()->getBlock(x, y, z, &block, &meta);
+	Mineserver::get()->screen()->log("Placed : " + dtos(block) + " ( " + dtos(x) + ", " + dtos(y) + ", " + dtos(z) + " ) " + dtos(direction));
+	
   /* TODO: Should be removed from here. Only needed for liquid related blocks? */
   Mineserver::get()->physics()->checkSurrounding(vec(x, y, z));
   return PACKET_OK;
